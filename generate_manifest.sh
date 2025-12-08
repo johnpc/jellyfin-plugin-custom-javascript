@@ -22,8 +22,8 @@ if [[ -z "$RELEASE_TAGS" ]]; then
 fi
 
 FIRST_TAG=$(echo "$RELEASE_TAGS" | head -n 1)
-FIRST_MANIFEST_URL="https://github.com/$REPO/releases/download/$FIRST_TAG/manifest.json"
-FIRST_MANIFEST=$(curl -s -L "$FIRST_MANIFEST_URL")
+FIRST_MANIFEST_URL="https://github.com/$REPO/releases/download/$FIRST_TAG/release-manifest.json"
+FIRST_MANIFEST=$(curl -s -L $AUTH_HEADER "$FIRST_MANIFEST_URL")
 
 if [[ -z "$FIRST_MANIFEST" || "$FIRST_MANIFEST" == "Not Found" ]]; then
   echo "Error: Could not fetch first manifest"
@@ -34,8 +34,8 @@ BASE_MANIFEST=$(echo "$FIRST_MANIFEST" | jq '.[0] | del(.versions)')
 ALL_VERSIONS="[]"
 
 for TAG in $RELEASE_TAGS; do
-  MANIFEST_URL="https://github.com/$REPO/releases/download/$TAG/manifest.json"
-  RELEASE_MANIFEST=$(curl -s -L "$MANIFEST_URL")
+  MANIFEST_URL="https://github.com/$REPO/releases/download/$TAG/release-manifest.json"
+  RELEASE_MANIFEST=$(curl -s -L $AUTH_HEADER "$MANIFEST_URL")
   
   [[ -z "$RELEASE_MANIFEST" || "$RELEASE_MANIFEST" == "Not Found" ]] && continue
   
