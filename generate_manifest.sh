@@ -5,7 +5,9 @@ OUTPUT_FILE="manifest.json"
 GITHUB_API_URL="https://api.github.com/repos/$REPO/releases"
 
 echo "Fetching releases from $REPO..."
-RELEASES=$(curl -s "$GITHUB_API_URL")
+AUTH_HEADER=""
+[[ -n "$GITHUB_TOKEN" ]] && AUTH_HEADER="-H \"Authorization: token $GITHUB_TOKEN\""
+RELEASES=$(curl -s $AUTH_HEADER "$GITHUB_API_URL")
 
 if [[ $RELEASES == *"API rate limit exceeded"* ]]; then
   echo "Error: GitHub API rate limit exceeded."
@@ -13,6 +15,12 @@ if [[ $RELEASES == *"API rate limit exceeded"* ]]; then
 fi
 
 RELEASE_TAGS=$(echo "$RELEASES" | grep -o '"tag_name": "[^"]*' | sed 's/"tag_name": "//')
+
+if [[ -z "$RELEASE_TAGS" ]]; then
+  echo "Error: No releases found"
+  exit 1
+fi
+
 FIRST_TAG=$(echo "$RELEASE_TAGS" | head -n 1)
 FIRST_MANIFEST_URL="https://github.com/$REPO/releases/download/$FIRST_TAG/manifest.json"
 FIRST_MANIFEST=$(curl -s -L "$FIRST_MANIFEST_URL")
