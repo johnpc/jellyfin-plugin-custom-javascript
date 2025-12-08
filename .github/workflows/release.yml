@@ -52,7 +52,7 @@ jobs:
         cat > manifest.json << MANIFEST_EOF
         [
           {
-            "guid": "2919b0df-8252-4c02-8210-d628adcd651b",
+            "guid": "38f5aa9b-9c3a-4db0-b4c4-a2d6823e7da7",
             "name": "Custom JavaScript",
             "overview": "Inject custom javascript to the Jellyfin web ui",
             "description": "Inject custom javascript to the Jellyfin web ui",
