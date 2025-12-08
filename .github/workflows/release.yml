@@ -21,10 +21,10 @@ jobs:
         dotnet-version: 9.0.x
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore Jellyfin.Plugin.CustomJavascript.sln
     
     - name: Build
-      run: dotnet build --configuration Release --no-restore /p:TreatWarningsAsErrors=false
+      run: dotnet build Jellyfin.Plugin.CustomJavascript.sln --configuration Release --no-restore /p:TreatWarningsAsErrors=false
     
     - name: Get version from tag
       id: get_version
