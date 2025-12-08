@@ -49,7 +49,7 @@ jobs:
     
     - name: Create manifest.json
       run: |
-        cat > manifest.json << EOF
+        cat > manifest.json << MANIFEST_EOF
         [
           {
             "guid": "2919b0df-8252-4c02-8210-d628adcd651b",
@@ -70,7 +70,7 @@ jobs:
             ]
           }
         ]
-        EOF
+        MANIFEST_EOF
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
