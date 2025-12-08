@@ -5,9 +5,13 @@ OUTPUT_FILE="manifest.json"
 GITHUB_API_URL="https://api.github.com/repos/$REPO/releases"
 
 echo "Fetching releases from $REPO..."
-AUTH_HEADER=""
-[[ -n "$GITHUB_TOKEN" ]] && AUTH_HEADER="-H \"Authorization: token $GITHUB_TOKEN\""
-RELEASES=$(curl -s $AUTH_HEADER "$GITHUB_API_URL")
+if [[ -n "$GITHUB_TOKEN" ]]; then
+  AUTH_HEADER="-H \"Authorization: token $GITHUB_TOKEN\""
+  RELEASES=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_API_URL")
+else
+  AUTH_HEADER=""
+  RELEASES=$(curl -s "$GITHUB_API_URL")
+fi
 
 if [[ $RELEASES == *"API rate limit exceeded"* ]]; then
   echo "Error: GitHub API rate limit exceeded."
@@ -21,9 +25,21 @@ if [[ -z "$RELEASE_TAGS" ]]; then
   exit 1
 fi
 
-FIRST_TAG=$(echo "$RELEASE_TAGS" | head -n 1)
-FIRST_MANIFEST_URL="https://github.com/$REPO/releases/download/$FIRST_TAG/release-manifest.json"
-FIRST_MANIFEST=$(curl -s -L $AUTH_HEADER "$FIRST_MANIFEST_URL")
+# Find first valid manifest
+FIRST_MANIFEST=""
+for TAG in $RELEASE_TAGS; do
+  MANIFEST_URL="https://github.com/$REPO/releases/download/$TAG/manifest.json"
+  if [[ -n "$GITHUB_TOKEN" ]]; then
+    TEST_MANIFEST=$(curl -s -L -H "Authorization: token $GITHUB_TOKEN" "$MANIFEST_URL")
+  else
+    TEST_MANIFEST=$(curl -s -L "$MANIFEST_URL")
+  fi
+  
+  if [[ -n "$TEST_MANIFEST" && "$TEST_MANIFEST" != "Not Found" ]]; then
+    FIRST_MANIFEST="$TEST_MANIFEST"
+    break
+  fi
+done
 
 if [[ -z "$FIRST_MANIFEST" || "$FIRST_MANIFEST" == "Not Found" ]]; then
   echo "Error: Could not fetch first manifest"
@@ -34,8 +50,12 @@ BASE_MANIFEST=$(echo "$FIRST_MANIFEST" | jq '.[0] | del(.versions)')
 ALL_VERSIONS="[]"
 
 for TAG in $RELEASE_TAGS; do
-  MANIFEST_URL="https://github.com/$REPO/releases/download/$TAG/release-manifest.json"
-  RELEASE_MANIFEST=$(curl -s -L $AUTH_HEADER "$MANIFEST_URL")
+  MANIFEST_URL="https://github.com/$REPO/releases/download/$TAG/manifest.json"
+  if [[ -n "$GITHUB_TOKEN" ]]; then
+    RELEASE_MANIFEST=$(curl -s -L -H "Authorization: token $GITHUB_TOKEN" "$MANIFEST_URL")
+  else
+    RELEASE_MANIFEST=$(curl -s -L "$MANIFEST_URL")
+  fi
   
   [[ -z "$RELEASE_MANIFEST" || "$RELEASE_MANIFEST" == "Not Found" ]] && continue
   
