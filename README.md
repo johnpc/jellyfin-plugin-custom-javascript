@@ -1,3 +1,9 @@
+# ⚠️ DEPRECATED
+
+**This plugin is no longer actively maintained.** Please use the fork [Jellyfin JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector) by [@n00bcodr](https://github.com/n00bcodr), which is more actively maintained and includes more features.
+
+---
+
 # Jellyfin Custom JavaScript Plugin
 
 This plugin allows you to inject custom JavaScript code into the Jellyfin web UI. It provides a configuration page with a text area where you can enter any JavaScript code, which will then be executed when the Jellyfin web interface loads.
